@@ -1,6 +1,14 @@
 package user
 
-import "time"
+import (
+	"fmt"
+	"time"
+
+	"goWebServer/shared/logger"
+
+	"github.com/spf13/viper"
+	"golang.org/x/crypto/bcrypt"
+)
 
 // User ...
 type User struct {
@@ -13,4 +21,16 @@ type User struct {
 	Password     string     `json:"password" db:"password"`
 	CreatedAt    time.Time  `json:"-" db:"created_at"`
 	UpdatedAt    *time.Time `json:"-" db:"updated_at"`
+}
+
+func (user User) ChangePassword(newPassword string) (newUser User, err error) {
+	saltedPassword := fmt.Sprintf("%s.%s", newPassword, viper.GetString("password_salt"))
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(saltedPassword), bcrypt.DefaultCost)
+	if err != nil {
+		err = fmt.Errorf("%s", "hashing password error")
+		logger.Log.Error(err)
+		return
+	}
+	newUser.Password = string(hashedPassword)
+	return
 }

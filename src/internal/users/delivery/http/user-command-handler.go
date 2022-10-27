@@ -52,12 +52,10 @@ func (handler *UserCommandHandler) UpdateByID(c echo.Context) (err error) {
 		StartingDate: startingDateParse,
 	}
 
-	//check if citizen detail is available
 	userProfile, err = handler.userUseCase.GetByID(c.Request().Context(), userProfile.ID)
 	if err != nil {
 		logger.Log.Fatal(err.Error())
 		return c.JSON(http.StatusBadRequest, properties.ErrorResponse{Message: err.Error(), Data: err})
-
 	}
 
 	userProfile, err = handler.userUseCase.UpdateProfile(c.Request().Context(), &userProfile)
