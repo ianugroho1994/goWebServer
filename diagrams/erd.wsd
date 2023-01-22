@@ -1,0 +1,75 @@
+@startuml SmartLab ERD
+
+entity Organizations{
+    * ID : string <<PK>>
+    * CreatedAt : Date
+    * UpdatedAt : Date
+    --
+    * Name : string
+}
+
+entity Users{
+    * ID : string <<PK>>
+    --
+    * Email : string
+    * Password : string
+    * ResetPasswordToken : string
+    * ResetPasswordExpired : string
+    * CreatedAt : Date
+    * UpdatedAt : Date
+    --
+    * OrganizationID : string <<FK>>
+}
+Organizations ||--|{ Users
+
+entity Devices{
+    * ID : string <<PK>>
+    --
+    * HandsetID : string
+    * CreatedAt : Date
+    * UpdatedAt : Date
+    --
+    * UserID : string <<FK>>
+}
+Users||--||Devices
+
+entity License{
+    * ID : string <<PK>>
+    --
+    * Token : string
+    * Active : boolean
+    * ExpiredPeriod : Date
+    * CreatedAt : Date
+    * UpdatedAt : Date
+    --
+    * DeviceID : string <<FK>>
+}
+Devices||--||License
+
+entity MedicalRecord{
+    * ID : string <<PK>>
+    --
+    * MedicalRecordID : string
+    * DeviceType : string
+    * Data : json
+    * CreatedAt : Date
+    * UpdatedAt : Date
+    --
+    * PatientID : string <<FK>>
+}
+
+entity Patient{
+    * ID : string <<PK>>
+    --
+    * Name : string
+    * BirthDate : Date
+    * Gender : string
+    * BloodType : string
+    * LatestCheck : Date
+    * QR : string
+    * CreatedAt : Date
+    * UpdatedAt : Date
+}
+Patient||--|{MedicalRecord
+
+@enduml

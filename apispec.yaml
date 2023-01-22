@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Smartlab RESTful API
+  description: API spec for smartlab RESTful API
+  version: 1.0.0
+servers:
+  - url: http://localhost:9090
+paths:
+  /user:
+    get:
+      tags:
+        - User API
+      description: List all Users
+      summary: List all Users
+      responses:
+        '200':
+          description: Success get all Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseUser'
+  /user/{userId}:
+    get:
+      tags:
+        - User API
+      summary: Get User by id
+      description: Get User by id
+      parameters:
+        - name: userId
+          in: path
+          schema:
+            type: integer
+          description: User Id
+          required: true
+      responses:
+        '200':
+          description: Success get User by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseUser'
+    delete:
+      tags:
+        - User API
+      summary: Delete User by id
+      description: Delete User by id
+      parameters:
+        - name: userId
+          in: path
+          schema:
+            type: integer
+          description: User Id
+          required: true
+      responses:
+        '200':
+          description: OK
+  /user/create:
+    post:
+      tags:
+        - User API
+      description: Create a User
+      summary: Create a User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Success create User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseUser'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    ResponseUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        reset_password_token:
+          type: string
+        reset_password_expired:
+          type: string

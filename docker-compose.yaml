@@ -1,0 +1,24 @@
+version: "3.3"
+networks:
+  database:
+    name: "database-net"
+    external: true
+services:
+  smartlab-be:
+    container_name: smartlab-be
+    image: registry.gitlab.com/hardtmann/smartlab/license-server:latest
+    pull_policy: always
+    networks:
+      - database
+    ports:
+      - 1325:1325
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.smartlab-be.tls=true
+      - traefik.http.routers.smartlab-be.tls.certresolver=myresolver
+      - traefik.http.routers.smartlab-be.rule=Host(`smartlab.hardtmann.id`) && PathPrefix(`/v1`)
+      - traefik.http.routers.smartlab-be.middlewares=smartlab-be-stripprefix
+      - traefik.http.middlewares.smartlab-be-stripprefix.stripprefix.prefixes=/v1
+      - traefik.http.routers.smartlab-be.priority=129
+
+      

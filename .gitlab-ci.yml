@@ -1,0 +1,58 @@
+image: golang:latest
+
+variables:
+  IMAGE_NAME: registry.gitlab.com/hardtmann/smartlab/smartlab
+  REPO_NAME: gitlab.com/hardtmann/smartlab/License-Server
+
+before_script:
+  - echo $CI_BUILD_REF
+  - echo $CI_PROJECT_DIR
+  - > 
+    if [ "`which go`" == "" ]; then
+      export PATH=$PATH:/snap/bin
+    fi
+  - >
+    if [ "$GOPATH" != "" ]; then
+      mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
+      ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
+      cd $GOPATH/src/$REPO_NAME
+    fi
+
+stages:
+  - build_go
+  - build_docker_image
+  # - deploy
+
+compile:
+  stage: build_go
+  tags: ["docker"]
+  script:
+    - export PATH=$PATH:/usr/local/go/bin
+    - cd $CI_PROJECT_DIR
+    - git checkout $CI_COMMIT_SHA
+    - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./build/smartlab
+    - echo "Compile complete."
+  artifacts:
+    paths:
+      - ./build
+
+build_image:
+  image: docker:stable
+  stage: build_docker_image
+  dependencies:
+    - compile
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  script:
+    - docker build -t registry.gitlab.com/hardtmann/smartlab/license-server:${CI_COMMIT_SHA:0:7} .
+    - docker push registry.gitlab.com/hardtmann/smartlab/license-server:${CI_COMMIT_SHA:0:7}
+    - docker build -t registry.gitlab.com/hardtmann/smartlab/license-server:latest .
+    - docker push registry.gitlab.com/hardtmann/smartlab/license-server:latest
+
+# deploy:
+#   stage: deploy
+#   script: echo "Define your deployment script!"
+#   environment: production
+
